@@ -5,27 +5,27 @@ var ctx = canvas.getContext("2d");
 
 const h = canvas.height;
 const w = canvas.width;
-const dim = 20;
-const gap = Math.floor(dim * .2);
+const dim = 21;
+const gap = Math.floor(dim * .1);
 const nx = w/dim;
 const ny = h/dim;
 const FPS = 60000 / 30;
 
 function drawSnakeBlock(x: number, y: number): void {
     ctx.beginPath();
-    ctx.rect(x*dim, y*dim, dim-gap, dim-gap);
+    ctx.rect(x*dim + gap, y*dim + gap, dim- gap, dim-gap);
     ctx.fillStyle = "#FF0000";
     ctx.fill();
     ctx.closePath();
 }
 
-function clearSnakeBlock(x: number, y: number): void {
-    
+function clearBoard(): void {
+    ctx.clearRect(0, 0, w, h);
 }
 
 function drawCrumb(x: number, y: number): void {
     ctx.beginPath();
-    ctx.arc(x*dim + dim/2, y*dim + dim/2, dim/2, 0, 2*Math.PI);
+    ctx.arc(x*dim + dim/2, y*dim + dim/2, dim/4, 0, 2*Math.PI);
     ctx.fillStyle = "#00FF00";
     ctx.fill();
     ctx.closePath();
@@ -47,17 +47,19 @@ class Snake {
         this.y = this.y - 1;
 
         if (this.x < 0) {
-            this.x = w;
-        } else if (this.x >= w) {
+            this.x = nx - 1;
+        } else if (this.x >= nx) {
             this.x = 0;
         }
 
         if (this.y < 0) {
-            this.y = h;
-        } else if (this.y >= h) {
+            this.y = ny - 1;
+        } else if (this.y >= ny) {
             this.y = 0;
         }
         drawSnakeBlock(this.x, this.y);
+        drawSnakeBlock(this.x -1, this.y -1);
+
     }
 }
 
@@ -88,8 +90,10 @@ function drawSnake(): void {
 function startGame(): void {
     var s = new Snake(10,10);
     setInterval(function () {
+        clearBoard()
+        drawCrumb(5,5);
         s.move();
-    }, 1000);
-    drawCrumb(5,5);
+    }, 500);
+    // drawCrumb(5,5);
 }
 
