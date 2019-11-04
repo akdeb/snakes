@@ -1,10 +1,11 @@
+const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
-    entry: path.join(__dirname, '/app.ts'),
+    entry: './app.ts',
     output: {
         filename: 'app.js',
-        path: __dirname
+        path: path.resolve(__dirname, 'dist'),
     },
     module: {
         rules: [
