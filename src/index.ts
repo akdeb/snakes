@@ -1,5 +1,6 @@
 // scale to rectangle later. 
 // build a square board first.
+import * as _ from "lodash";
 
 window.onload = startGame;
 
@@ -20,7 +21,7 @@ function drawSnakeBlock(x: number, y: number): void {
     ctx.closePath();
 }
 
-function clearBoard(): void {
+function clearCanvas(): void {
     ctx.clearRect(0, 0, s, s);
 }
 
@@ -31,6 +32,10 @@ function drawCrumb(x: number, y: number): void {
     ctx.fillStyle = "#0000FF";
     ctx.fill();
     ctx.closePath();
+}
+
+function transpose (arr: number[][]) {
+    return _.zip.apply(_, arr);
 }
 
 class doublyLinkedListNode {
@@ -46,7 +51,7 @@ class doublyLinkedListNode {
         this.prev = null;
     }
 
-    toString () {
+    toString (): string {
         return `x: ${this.x}, y: ${this.y}`;
     }
 }
@@ -95,12 +100,19 @@ class doublyLinkedList {
             console.log(node.toString());
             node = node.next;
         }
-        return '';
     }
+}
+
+enum SnakeDirection {
+    N,
+    E,
+    W,
+    S,
 }
 
 class Snake {
     structure: doublyLinkedList;
+    dir: SnakeDirection;
 
     constructor () {
         this.structure = new doublyLinkedList()
@@ -138,20 +150,36 @@ class Board {
             }
         }
         this.snake = new Snake();
-        this.updateBoardWithSnake();
-        this.crumb = this.getNextCrumb();
+        this.getCrumb();
+    }
+
+    clearBoard () {
+        for (let i = 0; i < nblocks; i += 1) {
+            for (let j = 0; j < nblocks; j += 1) {
+                this.board[i][j] = 0;
+            }
+        }
+        clearCanvas();
     }
 
     move () {
-        // this.snake.structure.toString();
-        this.snake.structure.head.next.x = this.snake.structure.head.next.x + 1;
+        
+        // this.snake.structure.head.next.x = this.snake.structure.head.next.x + 1;
+        let snakeHead: doublyLinkedListNode = this.snake.structure.head.next;
         let node: doublyLinkedListNode = this.snake.structure.removeNode();
         this.snake.structure.addNode(node.x, node.y);
-        this.updateBoardWithSnake();
+        this.snake.structure.head.next.x = snakeHead.x + 1;
+        console.log('current_snake: ');
+        this.snake.structure.toString();
         this.render();
+        console.log(transpose(this.board));
     }
 
+
     render () {
+        this.clearBoard();
+        this.updateBoardWithSnake();
+        this.updateBoardWithCrumb();
         for (let i = 0; i < nblocks; i += 1) {
             for (let j = 0; j < nblocks; j += 1) {
                 if (this.board[i][j] == 1) {
@@ -163,6 +191,10 @@ class Board {
         }
     }
 
+    updateBoardWithCrumb() {
+        this.board[this.crumb.x][this.crumb.y] = -1;
+    }
+
     updateBoardWithSnake() {
         let node = this.snake.structure.head;
         node = node.next;
@@ -172,7 +204,10 @@ class Board {
         }
     }
 
-    getNextCrumb (): Crumb {
+    // at worst O(length of Snake) runtime
+    // call when existing crumb has been caught by head
+    // and when initializing board
+    getCrumb (): void {
         let x: number, y: number;
         while (true) {
             x = getRandomInt(0, nblocks-1);
@@ -180,8 +215,7 @@ class Board {
             if (!this.board[x][y]) 
                 break;
         }
-        this.board[x][y] = -1;
-        return new Crumb(x, y)
+        this.crumb = new Crumb(x, y)
     }
 
     // move() {
@@ -207,9 +241,11 @@ class Board {
 
 function startGame(): void {
     var board = new Board();
-    setInterval(function () {
-        board.move();
-    }, 500);
+    // setInterval(function () {
+    //     board.move();
+    // }, 500);
+    // board.move();
+    board.move();
 }
 
 function getRandomInt(min: number, max: number) {

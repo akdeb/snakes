@@ -21,7 +21,6 @@ module.exports = {
     },
     devServer: {
         contentBase: "./public",
-        writeToDisk: true,
         hot: true
     }
 };
