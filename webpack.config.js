@@ -4,8 +4,8 @@ const path = require('path');
 module.exports = {
     entry: './src/index.ts',
     output: {
-        filename: 'app.js',
-        path: path.resolve(__dirname, 'dist'),
+        filename: 'dist/app.js',
+        path: __dirname,
     },
     module: {
         rules: [
@@ -19,4 +19,9 @@ module.exports = {
     resolve: {
         extensions: [".tsx", ".ts", ".js"]
     },
+    devServer: {
+        contentBase: "./public",
+        writeToDisk: true,
+        hot: true
+    }
 };

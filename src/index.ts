@@ -1,7 +1,5 @@
-// index.ts
-
-function getName(name: String) {
-    return name;
+onload = () => {
+    console.log('Hello world.');
 }
 
-console.log(getName('krunal'));
+window.onload = onload;
