@@ -9,9 +9,11 @@ var ctx = canvas.getContext("2d");
 
 const s = canvas.height;
 const dim = 20;
-const gap = 2;
 const nblocks = s/dim;
 const defaultSnakeLength = 3;
+
+// default position is snake still
+let xv = 1, yv = 0;
 
 function drawSnakeBlock(x: number, y: number): void {
     ctx.beginPath();
@@ -163,16 +165,36 @@ class Board {
     }
 
     move () {
-        
-        // this.snake.structure.head.next.x = this.snake.structure.head.next.x + 1;
         let snakeHead: doublyLinkedListNode = this.snake.structure.head.next;
         let node: doublyLinkedListNode = this.snake.structure.removeNode();
         this.snake.structure.addNode(node.x, node.y);
-        this.snake.structure.head.next.x = snakeHead.x + 1;
-        console.log('current_snake: ');
-        this.snake.structure.toString();
+        if (!yv) {
+            this.snake.structure.head.next.x = snakeHead.x + xv;
+        }
+        if (!xv) {
+            this.snake.structure.head.next.y = snakeHead.y + yv;
+        }
+        console.log({xv, yv});
+
+        // switch ({xv, yv}) {
+        //     case {xv: -1, yv: 0}: // move left
+        //         this.snake.structure.head.next.x = snakeHead.x - 1;
+        //         break;
+        //     case {xv: 1, yv: 0}: // move right
+        //         this.snake.structure.head.next.x = snakeHead.x + 1;
+        //         break;
+        //     case {xv: 0, yv: -1}: // move up
+        //         this.snake.structure.head.next.y = snakeHead.y - 1; 
+        //         break;
+        //     case {xv: 0, yv: 1}: // move down
+        //         this.snake.structure.head.next.y = snakeHead.y + 1; 
+        //         break; 
+        //     default: break;
+        // }
+        
+        // perform movement first and then wrap. then render.
+        this.wrap();
         this.render();
-        console.log(transpose(this.board));
     }
 
 
@@ -200,6 +222,25 @@ class Board {
         node = node.next;
         while (node !== this.snake.structure.tail) {
             this.board[node.x][node.y] = 1;
+            node = node.next;
+        }
+    }
+
+    wrap() {
+        // point to real head of snake not sentinel head
+        let node: doublyLinkedListNode = this.snake.structure.head.next;
+        while (node != this.snake.structure.tail) {
+            if (node.x < 0) {
+                node.x = nblocks - 1;
+            } else if (node.x >= nblocks) {
+                node.x = 0;
+            }
+    
+            if (node.y < 0) {
+                node.y = nblocks - 1;
+            } else if (node.y >= nblocks) {
+                node.y = 0;
+            }
             node = node.next;
         }
     }
@@ -239,13 +280,38 @@ class Board {
     // }
 }
 
+document.addEventListener('keydown', function (event) {
+    switch (event.code) {
+        case 'ArrowDown': 
+            xv=0; yv=1;
+            break;
+        case 'ArrowUp': 
+            xv=0; yv=-1;
+            break;
+        case 'ArrowLeft':
+            xv=-1; yv=0;
+            break;
+        case 'ArrowRight':
+            xv=1; yv=0;
+            break;
+        default:
+            console.log(`${event.code} not handled.`);
+    }
+    console.log(xv, yv)
+});
+
 function startGame(): void {
     var board = new Board();
-    // setInterval(function () {
-    //     board.move();
-    // }, 500);
+    setInterval(function () {
+        board.move();
+    }, 500);
+    
     // board.move();
-    board.move();
+    // // board.move();
+    // // board.move();
+    // // board.move();
+    // // board.move();
+    
 }
 
 function getRandomInt(min: number, max: number) {
