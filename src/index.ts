@@ -76,7 +76,7 @@ class doublyLinkedList {
     addNode (x: number, y: number) {
         const node = new doublyLinkedListNode(x, y);
         node.next = this.head.next;
-        this.head.next.prev = node;
+        node.next.prev = node;
         node.prev = this.head;
         this.head.next = node;
         this.n += 1;
@@ -164,35 +164,28 @@ class Board {
         clearCanvas();
     }
 
+    // isCollision () {
+    //     let snakeHead: doublyLinkedListNode = this.snake.structure.head.next;
+
+    // }
+
+    captureCrumb () {
+        // Captures crumb, increases size of snake, and adds new crumb to board.
+        let snakeHead: doublyLinkedListNode = this.snake.structure.head.next;
+        if (snakeHead.x == this.crumb.x && snakeHead.y == this.crumb.y) {
+            this.snake.structure.addNode(snakeHead.x + xv, snakeHead.y + yv);
+            this.getCrumb();     
+        }
+    }
+
     move () {
+        let newX: number, newY: number;
         let snakeHead: doublyLinkedListNode = this.snake.structure.head.next;
         let node: doublyLinkedListNode = this.snake.structure.removeNode();
-        this.snake.structure.addNode(node.x, node.y);
-        if (!yv) {
-            this.snake.structure.head.next.x = snakeHead.x + xv;
-        }
-        if (!xv) {
-            this.snake.structure.head.next.y = snakeHead.y + yv;
-        }
-        console.log({xv, yv});
+        this.snake.structure.addNode(snakeHead.x + xv, snakeHead.y + yv);
 
-        // switch ({xv, yv}) {
-        //     case {xv: -1, yv: 0}: // move left
-        //         this.snake.structure.head.next.x = snakeHead.x - 1;
-        //         break;
-        //     case {xv: 1, yv: 0}: // move right
-        //         this.snake.structure.head.next.x = snakeHead.x + 1;
-        //         break;
-        //     case {xv: 0, yv: -1}: // move up
-        //         this.snake.structure.head.next.y = snakeHead.y - 1; 
-        //         break;
-        //     case {xv: 0, yv: 1}: // move down
-        //         this.snake.structure.head.next.y = snakeHead.y + 1; 
-        //         break; 
-        //     default: break;
-        // }
-        
-        // perform movement first and then wrap. then render.
+        // perform movement first, see if crumb captured, and then wrap. then render.
+        this.captureCrumb();
         this.wrap();
         this.render();
     }
@@ -258,26 +251,6 @@ class Board {
         }
         this.crumb = new Crumb(x, y)
     }
-
-    // move() {
-    //     // console.log(this.x, this.y);
-    //     drawSnakeBlock(this.x, this.y);
-    //     drawSnakeBlock(this.x, this.y+1);
-    //     this.x = this.x +1;
-    //     // this.y = this.y - 1;
-
-    //     if (this.x < 0) {
-    //         this.x = nx - 1;
-    //     } else if (this.x >= nx) {
-    //         this.x = 0;
-    //     }
-
-    //     if (this.y < 0) {
-    //         this.y = ny - 1;
-    //     } else if (this.y >= ny) {
-    //         this.y = 0;
-    //     }
-    // }
 }
 
 document.addEventListener('keydown', function (event) {
@@ -297,21 +270,13 @@ document.addEventListener('keydown', function (event) {
         default:
             console.log(`${event.code} not handled.`);
     }
-    console.log(xv, yv)
 });
 
 function startGame(): void {
     var board = new Board();
     setInterval(function () {
         board.move();
-    }, 500);
-    
-    // board.move();
-    // // board.move();
-    // // board.move();
-    // // board.move();
-    // // board.move();
-    
+    }, 100);
 }
 
 function getRandomInt(min: number, max: number) {
