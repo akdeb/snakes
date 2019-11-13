@@ -15,8 +15,9 @@ const defaultSnakeLength = 3;
 // default position is snake still
 let xv = 1, yv = 0;
 
-function drawSnakeBlock(x: number, y: number): void {
+function drawSnakeBlock(x: number, y: number, alpha: number): void {
     ctx.beginPath();
+    ctx.globalAlpha = alpha;
     ctx.rect(x*dim+2, y*dim+2, dim-2, dim-2);
     ctx.fillStyle = "#FF0000";
     ctx.fill();
@@ -30,6 +31,7 @@ function clearCanvas(): void {
 // this manages only positive numbers right now
 function drawCrumb(x: number, y: number): void {
     ctx.beginPath();
+    ctx.globalAlpha = 1;
     ctx.arc(x*dim + dim/2, y*dim + dim/2, dim/3, 0, 2*Math.PI);
     ctx.fillStyle = "#0000FF";
     ctx.fill();
@@ -176,10 +178,10 @@ class Board {
             this.snake.structure.addNode(snakeHead.x + xv, snakeHead.y + yv);
             this.getCrumb();     
         }
+        console.log(this.snake.structure.n);
     }
 
     move () {
-        let newX: number, newY: number;
         let snakeHead: doublyLinkedListNode = this.snake.structure.head.next;
         let node: doublyLinkedListNode = this.snake.structure.removeNode();
         this.snake.structure.addNode(snakeHead.x + xv, snakeHead.y + yv);
@@ -195,10 +197,13 @@ class Board {
         this.clearBoard();
         this.updateBoardWithSnake();
         this.updateBoardWithCrumb();
+        let diff: number = 0.9 / this.snake.structure.n;
+        let alpha: number = 1-diff; 
         for (let i = 0; i < nblocks; i += 1) {
             for (let j = 0; j < nblocks; j += 1) {
                 if (this.board[i][j] == 1) {
-                    drawSnakeBlock(i, j);
+                    drawSnakeBlock(i, j, alpha);
+                    alpha -= diff
                 } else if (this.board[i][j] == -1) {
                     drawCrumb(i, j);
                 }
